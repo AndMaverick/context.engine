@@ -7,7 +7,7 @@ name = "context.engine"
 version = "0.1.0"
 description = "Pack the best, least redundant context into a fixed token budget: scored chunks, diversity penalty, pinned items. Dependency-free Python."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "AndMaverick LLC" }]
 
