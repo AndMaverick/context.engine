@@ -1,0 +1,8 @@
+{"id":"refund-policy","text":"Refunds are available within 30 days of purchase for annual plans. Monthly plans are not refundable after the billing date.","score":0.52,"source":"kb/billing","meta":{"facts":["refund-window"]}}
+{"id":"q3-a","text":"Revenue grew 12 percent in the third quarter, driven by enterprise renewals and a lower churn rate across annual plans.","score":0.93,"source":"reports/q3","meta":{"facts":["q3-revenue"]}}
+{"id":"q3-b","text":"In the third quarter revenue grew 12 percent, driven by enterprise renewals and lower churn across the annual plans.","score":0.91,"source":"reports/q3","meta":{"facts":["q3-revenue"]}}
+{"id":"q3-c","text":"Third quarter revenue grew by 12 percent as enterprise renewals rose and churn on annual plans fell.","score":0.9,"source":"reports/q3","meta":{"facts":["q3-revenue"]}}
+{"id":"churn","text":"Monthly churn fell from 3.1 percent to 2.4 percent after the onboarding redesign shipped in July.","score":0.74,"source":"reports/q3","meta":{"facts":["churn-drop"]}}
+{"id":"sla","text":"Enterprise customers have a 99.9 percent uptime commitment. Credits are issued automatically when a month falls below it.","score":0.61,"source":"kb/sla","meta":{"facts":["uptime-sla"]}}
+{"id":"hiring","text":"The company plans to add 14 engineers next year, mostly in the data platform team, and two in security.","score":0.38,"source":"reports/people","meta":{"facts":["hiring"]}}
+{"id":"q3-d","text":"Revenue for the third quarter was up 12 percent, with enterprise renewals and annual plan retention the main drivers.","score":0.88,"source":"reports/q3","meta":{"facts":["q3-revenue"]}}
