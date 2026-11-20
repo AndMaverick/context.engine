@@ -102,6 +102,8 @@ python -m unittest discover -s tests -t . -v
 ruff check . && mypy
 ```
 
+**Related repositories:** [guard.rails](https://github.com/AndMaverick/guard.rails) can redact personal data and secrets from chunks before they are packed. [mao-framework](https://github.com/AndMaverick/mao-framework) has a smaller module, `mao.context`, that packs retrieved chunks into a token budget inside a governed run.
+
 MIT licensed. Built by [AndMaverick LLC](https://www.andmaverick.com).
 
 ---
