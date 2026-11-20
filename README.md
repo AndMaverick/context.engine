@@ -1,6 +1,6 @@
 # context.engine
 
-Context windows are a budget, and most retrieval pipelines spend it badly: five near-duplicate passages come back, the one fact that mattered gets cut, and nobody can say why. context.engine packs the highest-value, least redundant chunks into a fixed token budget, keeps the chunks that must be there, and records the reason for every chunk it did not use. Standard library only, Python 3.10 to 3.13, typed, 76 tests.
+Context windows are a budget, and most retrieval pipelines spend it badly: five nearly identical passages come back, the one fact that mattered gets cut, and nobody can say why. context.engine packs the most valuable, least redundant chunks into a fixed token budget, keeps the chunks that must be there, and records the reason for every chunk it did not use. Standard library only, Python 3.10 to 3.13, typed, 76 tests.
 
 ## Use
 
@@ -26,12 +26,12 @@ The 0.1 API (`Chunk`, `pack`, `tokens`, `overlap`, `Packed.text()`) works unchan
 | | |
 |---|---|
 | **Strategies** | `greedy` (best adjusted score first, the 0.1 behaviour), `density` (best score per token), `optimal` (exact 0/1 knapsack on total score), `best` (runs the others and keeps the set worth the most). Greedy by score and greedy by density each have a case where they lose to the other; `best` covers both, and the test suite checks `optimal` against brute force on 120 random instances. |
-| **Redundancy** | `diversity` pushes each chunk's score down by its similarity to what is already chosen. Similarity is `jaccard` (word sets), `shingle` (character n-grams, works for Chinese and Japanese and sees inflection), `containment` (a short chunk inside a long one), or your own function, for example one built on embeddings. |
+| **Redundancy** | `diversity` pushes each chunk's score down by its similarity to what is already chosen. Similarity is `jaccard` (word sets), `shingle` (character n grams, works for Chinese and Japanese and sees inflection), `containment` (a short chunk inside a long one), or your own function, for example one built on embeddings. |
 | **Hard rules** | `dedupe_above` drops a chunk outright when it is too like one already chosen. `max_per_source` and `source_tokens` stop one source from taking the window. `min_score` sets a floor. Pinned chunks skip all of these. |
-| **Real accounting** | `count=` takes your model's tokenizer. `overhead=` charges each chunk for its citation header and separator. Over-budget pins raise instead of truncating silently. |
+| **Real accounting** | `count=` takes your model's tokenizer. `overhead=` charges each chunk for its citation header and separator. Over budget pins raise instead of truncating silently. |
 | **Truncation** | `truncate=True` fills the last tokens with the best chunk that did not fit, cut at a sentence boundary where one fits. Its score is scaled by the share kept and `meta["truncated"]` says it was cut. |
-| **Order** | `order="ends"` puts the best chunks at the start and end of the context, `"ascending"` puts the best last, `"original"` keeps document order, `"source"` groups by source. Long-context models are reported to use the start and end of a prompt better than the middle (Liu et al., 2023); the library gives you the ordering, it does not measure the effect on your model. |
-| **Whole prompt** | `assemble(chunks, window=..., reserve_output=..., system=..., question=...)` budgets the system text, the question, the formatting and the answer space, then re-counts the finished prompt and repacks tighter if it came out over. It returns citations mapping `[n]` to chunk ids. |
+| **Order** | `order="ends"` puts the best chunks at the start and end of the context, `"ascending"` puts the best last, `"original"` keeps document order, `"source"` groups by source. Long context models are reported to use the start and end of a prompt better than the middle (Liu et al., 2023); the library gives you the ordering, it does not measure the effect on your model. |
+| **Whole prompt** | `assemble(chunks, window=..., reserve_output=..., system=..., question=...)` budgets the system text, the question, the formatting and the answer space, then counts again the finished prompt and repacks tighter if it came out over. It returns citations mapping `[n]` to chunk ids. |
 | **Explanations** | `Packed.decisions` has one record per input chunk with its status, its token cost, its adjusted score and the reason. `explain()` prints them. |
 
 ## Command line
@@ -65,11 +65,11 @@ gate: required chunk 'refund-policy' was not packed
 exit 1
 ```
 
-The first table is the point of `compare`: on these eight chunks the top-k baseline and plain greedy fill the budget with near-copies of the same revenue sentence and cover 1 of the 5 facts in the corpus. Diversity covers 3, at a lower total score, which is the trade it makes.
+The first table is the point of `compare`: on these eight chunks the top k baseline and plain greedy fill the budget with near copies of the same revenue sentence and cover 1 of the 5 facts in the corpus. Diversity covers 3, at a lower total score, which is the trade it makes.
 
 ## Measured
 
-`python examples/benchmark.py` packs 200 seeded synthetic retrieval corpora (about 160 chunks each, 8 of 40 facts are the ones the question needs, the best documents come back as several near-duplicate passages, scores are noisy) into one fifth of their tokens and counts how many of the 8 needed facts are present. The interval is a 95% bootstrap over corpora of the difference from the top-k baseline. It takes about three and a half minutes.
+`python examples/benchmark.py` packs 200 seeded synthetic retrieval corpora (about 160 chunks each, 8 of 40 facts are the ones the question needs, the best documents come back as several nearly identical passages, scores are noisy) into one fifth of their tokens and counts how many of the 8 needed facts are present. The interval is a 95% bootstrap over corpora of the difference from the top k baseline. It takes about three and a half minutes.
 
 ```
 200 corpora, gold facts per corpus: 8, ran in 210.7s
@@ -84,15 +84,15 @@ best + diversity 0.9 (shingle)           8.00     +1.30    [+1.19, +1.42]      2
 diversity 0.9 + dedupe at 0.8            8.00     +1.30    [+1.18, +1.43]      26.83
 ```
 
-Read it for what it is. The corpus is built to contain redundancy, so it shows what diversity-aware packing does when redundancy is there, and it hits the ceiling of 8 of 8. Diversity lowers the summed score (26 against 29) because it declines high-scoring near-copies on purpose. `best` raises the summed score by about 9% over greedy but does not move fact coverage in a way this sample can distinguish from zero. The synthetic text reuses exact words, so `jaccard` and `shingle` tie here. The unit tests show where they differ (inflection, text with no spaces). None of this says anything about your corpus. Run `compare` on yours.
+Read it for what it is. The corpus is built to contain redundancy, so it shows what diversity aware packing does when redundancy is there, and it hits the ceiling of 8 of 8. Diversity lowers the summed score (26 against 29) because it declines high scoring near copies on purpose. `best` raises the summed score by about 9% over greedy but does not move fact coverage in a way this sample can distinguish from zero. The synthetic text reuses exact words, so `jaccard` and `shingle` tie here. The unit tests show where they differ (inflection, text with no spaces). None of this says anything about your corpus. Run `compare` on yours.
 
 ## Honest limits
 
-- **Token counts are estimates** unless you pass `count=`. The built-in rules (about 1.33 tokens per Latin word, 2 per word in Arabic, Cyrillic and similar scripts, 1 per CJK character) are rules of thumb and real counts can differ by tens of percent. `assemble` checks the finished prompt with whatever counter you give it, so the check is only as good as the counter.
+- **Token counts are estimates** unless you pass `count=`. The rules that ship with the tool (about 1.33 tokens per Latin word, 2 per word in Arabic, Cyrillic and similar scripts, 1 per CJK character) are rules of thumb and real counts can differ by tens of percent. `assemble` checks the finished prompt with whatever counter you give it, so the check is only as good as the counter.
 - **Scores are yours.** Retrieval scores from different retrievers are not on one scale and the engine does not calibrate them.
 - **Similarity is lexical** unless you supply a function. Two passages that say the same thing in different words look unrelated to `jaccard` and `shingle`.
-- **Diversity is a heuristic.** It is the maximal-marginal-relevance idea applied greedily. Only `optimal` is exact, and only for total score with no diversity, quotas or dedupe; it refuses otherwise, and `best` says in `Packed.notes` when the search was too big to run (over 3,000,000 item-by-token cells).
-- **Truncation cuts meaning.** A sentence-boundary cut is cleaner than a mid-sentence one and still drops what came after.
+- **Diversity is a heuristic.** It is the maximal marginal relevance idea applied greedily. Only `optimal` is exact, and only for total score with no diversity, quotas or dedupe; it refuses otherwise, and `best` says in `Packed.notes` when the search was too big to run (over 3,000,000 item by token cells).
+- **Truncation cuts meaning.** A sentence boundary cut is cleaner than a mid sentence one and still drops what came after.
 - **No semantics, no retrieval, no reranking.** It decides what fits. It does not decide what is true.
 
 ## Tests
@@ -106,6 +106,6 @@ MIT licensed. Built by [AndMaverick LLC](https://www.andmaverick.com).
 
 ---
 
-**Related reading:** [The Job Nobody Has Yet](https://blog.andmaverick.com/the-job-nobody-has-yet?utm_source=github&utm_medium=repo&utm_campaign=context.engine)
+**Read the thinking:** [The Job Nobody Has Yet](https://blog.andmaverick.com/the-job-nobody-has-yet?utm_source=github&utm_medium=repo&utm_campaign=context.engine)
 
 **If this is your problem.** If you are deciding what to build, buy, and fund, I help leadership teams make that call with evidence. [Begin a conversation](https://calendly.com/andmaverick?utm_source=github&utm_medium=repo&utm_campaign=context.engine).
